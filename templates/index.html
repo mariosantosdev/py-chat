@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Chat em Tempo Real</title>
+
+		<style>
+            @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+
+                font-family: "Roboto", sans-serif;
+                font-weight: 400;
+                font-style: normal;
+			}
+
+			body {
+				display: flex;
+				flex-direction: column;
+
+				min-width: 100vw;
+				min-height: 100vh;	
+
+				justify-content: center;
+				align-items: center;
+				background-color: #3498dd;
+			}
+
+			body h1 {
+				color: white;
+			}
+
+			.chat {
+				display: flex;
+				flex-direction: column;
+
+				width: 50%;
+				height: 60vh;
+
+				background-color: #ffffff;
+				border-radius: 16px;
+			}
+
+			.chat form {
+				display: flex;
+				flex-direction: row;
+				gap: 1rem;
+			}
+
+			.chat form input {
+				width: 100%;
+
+				border: 0;
+				border-radius: 8px;
+				height: 2rem;
+			}
+
+			.chat button {
+				padding: 0 0.5rem;
+				cursor: pointer;
+
+				border: 0;
+				border-radius: 4px;
+
+				background-color: rgb(47, 255, 54);
+			}
+
+			.chat footer {
+				background-color: #f0eced;
+				padding: 1rem;
+			}
+
+			#messages {
+				display: flex;
+				flex-direction: column;
+				flex-grow: 1;
+				gap: 0.75rem;
+				list-style: none;
+
+				padding: 1rem;
+
+				margin-bottom: 2rem;
+				overflow-y: auto;
+			}
+
+			#messages li {
+				background-color: #ededed;
+				width: fit-content;
+				padding: 0.5rem;
+				border-radius: 0.75rem;
+			}
+
+			#messages .my-message {
+				margin-left: auto;
+				background-color: #79b5f5;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>PyChat</h1>
+		<main class="chat">
+			<ul id="messages"></ul>
+
+			<footer>
+				<form id="form" action="">
+					<input 
+						id="input"
+						autocomplete="off"
+						placeholder="Digite sua mensagem aqui..."
+					/>
+					<button>Enviar</button>
+				</form>
+			</footer>
+		</main>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js"></script>
+		<script>
+			var socket = io.connect(
+			"http://" + document.domain + ":" + location.port
+			);
+            var myLastMsg = null
+
+			socket.on("message", function (msg) {
+                var ul = document.getElementById("messages");
+				var li = document.createElement("li");
+                if(msg === myLastMsg){
+                    li.classList.add("my-message")
+                    myLastMsg = null
+                }
+
+				li.appendChild(document.createTextNode(msg));
+				ul.appendChild(li);
+			});
+
+			document.getElementById("form").onsubmit = function () {
+                myLastMsg = document.getElementById("input").value
+                socket.emit("message", myLastMsg);
+				document.getElementById("input").value = "";
+				return false;
+			};
+		</script>
+	</body>
+</html>
